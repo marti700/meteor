@@ -1,0 +1,17 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.vscode-embedded-tools",
+        "marus25.cortex-debug"
+      ]
+    }
+  },
+  "forwardPorts": [
+    "localhost:3333"
+  ]
+}

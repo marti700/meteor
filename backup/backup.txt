@@ -1,0 +1,40 @@
+.syntax unified
+    .cpu cortex-m4
+    .thumb
+
+    .global Reset_Handler
+    .type Reset_Handler, %function
+
+    .extern main
+
+    .section .vtable, "a"
+    .align 2
+    .word _estack
+    .word Reset_Handler
+
+    Reset_Handler:
+        // copy .data section to RAM
+        ldr r0, =_sdata // destination pointer
+        ldr r1, =_edata // end of data section
+        ldr r2, =_etext // source pointer
+    copy_loop:
+        cmp r0, r1 // check if done
+        bge copy_done // branch if equal or greater
+        ldrb r3, [r2], #1 // load byte from source and increment
+        strb r3, [r0], #1 // store byte to destination and increment
+        b copy_loop // repeat
+    copy_done:
+
+        // initialize bss section to zero in RAM
+        ldr r0, =_sbss // start of bss section
+        ldr r1, =_ebss // end of bss section
+        movs r2, #0 // zero value
+    zero_loop:
+        cmp r0, r1 // check if done
+        bge zero_done // branch if equal or greater
+        strb r2, [r0], #1 // store zero byte and increment
+        b zero_loop // repeat
+    zero_done:
+
+        // call main function
+        bl main
