@@ -63,22 +63,22 @@
     bl stop_IIC
 
     ldr r2, =LED6_ON_H
-    mov r3, #0xE
+    mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
     ldr r2, =LED6_ON_L
-    mov r3, #0x65
+    mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
     ldr r2, =LED6_OFF_H
-    mov r3, #0x4
+    mov r3, #0x0F
     bl IIC_write
     bl stop_IIC
     //
     ldr r2, =LED6_OFF_L
-    mov r3, #0xCB
+    mov r3, #0xFF
     bl IIC_write
     bl stop_IIC
     //
