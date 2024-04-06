@@ -13,7 +13,7 @@ bbbbuild:
 	arm-none-eabi-objcopy -O ihex ff2.elf ff2.hex
 
 compile:
-	arm-none-eabi-gcc -nostdlib -mthumb -mcpu=cortex-m4 -T linker.ld -g main.s reset_handler.s -o ./build/meteor.elf
+	arm-none-eabi-gcc -nostdlib -mthumb -mcpu=cortex-m4 -T linker.ld -g main.s timer_controller.s hcsr04.s reset_handler.s -o ./build/meteor.elf
 	arm-none-eabi-objcopy -O ihex ./build/meteor.elf ./build/meteor.hex
 
 clean:
