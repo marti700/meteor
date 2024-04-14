@@ -23,7 +23,6 @@
   .equ RXDREADY, 0x108
   .equ ERROR_SRC, 0x4C4
   .equ MODE1, 0x00
-  .equ RR, 6000
 
   init_PCA9685:
     ldr R0, =TWI_BASE
@@ -58,17 +57,6 @@
 
     bx lr
 
-  delay_1:
-    push {lr}
-    ldr r6, =RR
-  delay_1_inner:
-    subs r6, r6, #1
-    @ cmp r6, #0
-    bne delay_1_inner
-
-    pop {lr}
-    bx lr
-
   IIC_write:
     push {lr}
     // set the address of the led6_on register
@@ -79,7 +67,7 @@
     mov r1, #1
     str r1, [r0, #STARTTX]
 
-    bl delay_1
+    bl wait_for_ack
 
     // Check for address error
     ldr r5, [r0, #ERROR_SRC]
@@ -89,19 +77,13 @@
     // start over if there is an address error
     bne main
 
-    //clear the TXDSENT event
-    mov r1, #0
-    str r1, [r0, #TXDSENT]
-
     // write 1 to the led_6 register
     @ mov r1, #4000
     str r3, [r0, TXD]
     @ bl wait_for_ack
 
-    bl delay_1
-    //clear the TXDSENT event
-    mov r1, #0
-    str r1, [r0, #TXDSENT]
+    bl wait_for_ack
+
 
     pop {lr}
     bx lr
@@ -124,9 +106,9 @@
   wait_for_ack:
     push {lr}
     ldr r0, =TWI_BASE
-    ldr r1, [r0, #TXDSENT]
   wait_for_ack_inner:
-    tst r1, #(1<<0)
+    ldr r1, [r0, #TXDSENT]
+    tst r1, #1
     beq wait_for_ack_inner
 
     //clear the TXDSENT event

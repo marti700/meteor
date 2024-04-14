@@ -6,6 +6,7 @@
     .global get_cc_1
     .global wait_80_ms
     .global start_timer
+    .global delay_ms
 
     .text
     .thumb_func
@@ -18,11 +19,13 @@
     .equ TASK_CLEAR, 0x00C
     .equ TASK_CAPTURE_1, 0x044
     .equ EVENT_COMPARE_0, 0x140
+    .equ EVENT_COMPARE_2, 0x148
     .equ EVENT_COMPARE_3, 0x14C
     .equ MODE, 0x508
     .equ PRESCALER, 0x510
     .equ CC_0, 0x540
     .equ CC_1, 0x544
+    .equ CC_2, 0x548
     .equ CC_3, 0x54C
 
     reset_timer:
@@ -87,4 +90,22 @@
         ldr r0, =TIMER0_BASE
         mov r1, #1
         str r1, [r0, #TASK_START]
+        bx lr
+
+     delay_ms:
+        push {lr}
+        bl reset_timer
+        mov r4, #1000
+        mul r5, r5, r4
+        str r5, [r0, #CC_2]
+        bl start_timer
+    delay_ms_inner:
+        ldr r5, [r0, #EVENT_COMPARE_2]
+        tst r5, #1
+        beq delay_ms_inner
+    clear_timer_event:
+        mov r5, #0
+        str r5, [r0, #EVENT_COMPARE_2]
+
+        pop {lr}
         bx lr
