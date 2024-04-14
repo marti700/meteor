@@ -1,50 +1,50 @@
 .thumb
   .syntax unified
 
-  .global m1_reverse
-  .global m1_stop
-  .global m1_forward
+  .global m3_reverse
+  .global m3_stop
+  .global m3_forward
 
   .text
   .thumb_func
 
-  // LED 6
-  .equ LED6_ON_L, 0x1E
-  .equ LED6_ON_H, 0x1F
-  .equ LED6_OFF_L, 0x20
-  .equ LED6_OFF_H, 0x21
-  // LED 7
-  .equ LED7_ON_L, 0x22
-  .equ LED7_ON_H, 0x23
-  .equ LED7_OFF_L, 0x24
-  .equ LED7_OFF_H, 0x25
+  // LED 2
+  .equ LED2_ON_L, 0x0E
+  .equ LED2_ON_H, 0x0F
+  .equ LED2_OFF_L, 0x10
+  .equ LED2_OFF_H, 0x11
   .equ MODE1, 0x00
 
+  // LED 3
+  .equ LED3_ON_L, 0x12
+  .equ LED3_ON_H, 0x13
+  .equ LED3_OFF_L, 0x14
+  .equ LED3_OFF_H, 0x15
 
-  m1_forward:
+  m3_forward:
     push {lr}
-    bl reset_m1
-    bl set_led6
+    bl reset_m3
+    bl set_led2
     pop {lr}
     bx lr
 
-  m1_reverse:
+  m3_reverse:
     push {lr}
-    bl reset_m1
-    bl set_led7
+    bl reset_m3
+    bl set_led3
     pop {lr}
     bx lr
 
-  m1_stop:
+  m3_stop:
     push {lr}
-    bl reset_m1
-    bl set_led6
-    bl set_led7
+    bl reset_m3
+    bl set_led2
+    bl set_led3
     pop {lr}
     bx lr
 
   // the motor in reverse sets pwm wave by assinging values to the LED3_ON and LED6_OFF registers
-  set_led6:
+  set_led2:
     push {lr}
     // in order to use PWM is necesary to enable the PCA9685PW clock by setting the SLEEP bit of MODE 1 register to 0
     ldr r2, =MODE1
@@ -52,22 +52,22 @@
     bl IIC_write
     bl stop_IIC
 
-    ldr r2, =LED6_ON_H
+    ldr r2, =LED2_ON_H
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED6_ON_L
+    ldr r2, =LED2_ON_L
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED6_OFF_H
+    ldr r2, =LED2_OFF_H
     mov r3, #0x0F
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED6_OFF_L
+    ldr r2, =LED2_OFF_L
     mov r3, #0xFF
     bl IIC_write
     bl stop_IIC
@@ -76,7 +76,7 @@
     bx lr
 
 
-  set_led7:
+  set_led3:
     push {lr}
     // in order to use PWM is necesary to enable the PCA9685PW clock by setting the SLEEP bit of MODE 1 register to 0
     ldr r2, =MODE1
@@ -84,22 +84,22 @@
     bl IIC_write
     bl stop_IIC
 
-    ldr r2, =LED7_ON_H
+    ldr r2, =LED3_ON_H
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED7_ON_L
+    ldr r2, =LED3_ON_L
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED7_OFF_H
+    ldr r2, =LED3_OFF_H
     mov r3, #0x0F
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED7_OFF_L
+    ldr r2, =LED3_OFF_L
     mov r3, #0xFF
     bl IIC_write
     bl stop_IIC
@@ -107,15 +107,15 @@
     pop {lr}
     bx lr
 
-  reset_m1:
+  reset_m3:
     push {lr}
-    bl reset_l6
-    bl reset_l7
+    bl reset_l2
+    bl reset_l3
     pop {lr}
     bx lr
 
 
-  reset_l6:
+  reset_l2:
     push {lr}
     // in order to use PWM is necesary to enable the PCA9685PW clock by setting the SLEEP bit of MODE 1 register to 0
     @ ldr r2, =MODE1
@@ -123,22 +123,22 @@
     @ bl IIC_write
     @ bl stop_IIC
 
-    ldr r2, =LED6_ON_H
+    ldr r2, =LED2_ON_H
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED6_ON_L
+    ldr r2, =LED2_ON_L
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED6_OFF_H
+    ldr r2, =LED2_OFF_H
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED6_OFF_L
+    ldr r2, =LED2_OFF_L
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
@@ -146,7 +146,7 @@
     pop {lr}
     bx lr
 
-  reset_l7:
+  reset_l3:
     push {lr}
     // in order to use PWM is necesary to enable the PCA9685PW clock by setting the SLEEP bit of MODE 1 register to 0
     ldr r2, =MODE1
@@ -154,22 +154,22 @@
     bl IIC_write
     bl stop_IIC
 
-    ldr r2, =LED7_ON_H
+    ldr r2, =LED3_ON_H
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED7_ON_L
+    ldr r2, =LED3_ON_L
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED7_OFF_H
+    ldr r2, =LED3_OFF_H
     mov r3, #0x00
     bl IIC_write
     bl stop_IIC
     //
-    ldr r2, =LED7_OFF_L
+    ldr r2, =LED3_OFF_L
     mov r3, #0x0
     bl IIC_write
     bl stop_IIC
