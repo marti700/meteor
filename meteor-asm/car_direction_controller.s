@@ -12,6 +12,10 @@
   .global go_diagonal_downwards_left
   .global go_diagonal_upwards_left
   .global go_diagonal_downwards_right
+  .global rotate_around_axis_left_rear
+  .global rotate_around_axis_right_rear
+  .global rotate_around_axis_right_front
+  .global rotate_around_axis_left_front
 
   .text
   .thumb_func
@@ -70,7 +74,7 @@
     pop {lr}
     bx lr
 
-go_sideways_left:
+  go_sideways_left:
     push {lr}
     bl m1_reverse
     bl m2_forward
@@ -79,7 +83,7 @@ go_sideways_left:
     pop {lr}
     bx lr
 
-go_digonal_upwards_right:
+  go_digonal_upwards_right:
     push {lr}
     bl m1_forward
     bl m2_stop
@@ -88,7 +92,7 @@ go_digonal_upwards_right:
     pop {lr}
     bx lr
 
-go_diagonal_downwards_left:
+  go_diagonal_downwards_left:
     push {lr}
     bl m1_reverse
     bl m2_stop
@@ -97,7 +101,7 @@ go_diagonal_downwards_left:
     pop {lr}
     bx lr
 
-go_diagonal_upwards_left:
+  go_diagonal_upwards_left:
     push {lr}
     bl m1_stop
     bl m2_forward
@@ -106,7 +110,7 @@ go_diagonal_upwards_left:
     pop {lr}
     bx lr
 
-go_diagonal_downwards_right:
+  go_diagonal_downwards_right:
     push {lr}
     bl m1_stop
     bl m2_reverse
@@ -114,3 +118,42 @@ go_diagonal_downwards_right:
     bl m4_reverse
     pop {lr}
     bx lr
+
+  rotate_around_axis_right_rear:
+    push {lr}
+    bl m1_stop
+    bl m2_reverse
+    bl m3_forward
+    bl m4_stop
+    pop {lr}
+    bx lr
+
+  rotate_around_axis_left_rear:
+    push {lr}
+    bl m1_stop
+    bl m2_forward
+    bl m3_reverse
+    bl m4_stop
+    pop {lr}
+    bx lr
+
+  rotate_around_axis_right_front:
+    push {lr}
+    bl m1_reverse
+    bl m2_stop
+    bl m3_stop
+    bl m4_forward
+    pop {lr}
+    bx lr
+
+  rotate_around_axis_left_front:
+    push {lr}
+    bl m1_forward
+    bl m2_stop
+    bl m3_stop
+    bl m4_reverse
+    pop {lr}
+    bx lr
+
+
+

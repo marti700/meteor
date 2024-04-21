@@ -52,6 +52,7 @@
 
   stop_IIC:
     // stop transmision
+    ldr r0, =TWI_BASE
     mov r1, #1
     str r1, [r0, #TASk_STOP]
 
@@ -59,6 +60,7 @@
 
   IIC_write:
     push {lr}
+    ldr r0, =TWI_BASE
     // set the address of the led6_on register
     @ ldr r1, =LED6_OFF
     str r2, [r0, #TXD]
@@ -89,6 +91,7 @@
     bx lr
 
   IIC_read:
+    ldr r0, =TWI_BASE
     // set the address of the led6_on register
     @ mov r1, #LED6_ON_H
     str r2, [r0, #TXD]

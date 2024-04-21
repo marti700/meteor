@@ -5,33 +5,69 @@
   .text
   .thumb_func
 
-  .equ one_second, 30000000
+  .equ one_second, 2000
 
   main:
     @ bl measure_distance
     bl init_PCA9685
     bl go_forward
-    ldr r1, =one_second
-
-  wait_one_second:
-    sub r1, r1, #1
-    cmp r1, #0
-    bne wait_one_second
+    ldr r5, =one_second
+    bl delay_ms
 
     bl car_stop
-    ldr r1, =one_second
-
-  wait_oone_second:
-    sub r1, r1, #1
-    cmp r1, #0
-    bne wait_oone_second
+    ldr r5, =one_second
+    bl delay_ms
 
     bl go_backwards
-    ldr r1, =one_second
+    ldr r5, =one_second
+    bl delay_ms
 
-  wait_ooone_second:
-    sub r1, r1, #1
-    cmp r1, #0
-    bne wait_ooone_second
+    bl rotate_left
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl rotate_right
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl rotate_around_axis_left_rear
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl rotate_around_axis_right_rear
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl rotate_around_axis_left_front
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl rotate_around_axis_right_front
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl go_sideways_left
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl go_sideways_right
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl go_digonal_upwards_right
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl go_diagonal_upwards_left
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl go_diagonal_downwards_right
+    ldr r5, =one_second
+    bl delay_ms
+
+    bl go_diagonal_downwards_left
+    ldr r5, =one_second
+    bl delay_ms
 
     b main
