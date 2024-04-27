@@ -8,40 +8,44 @@
 
   .equ one_second, 2000
   .equ GIPIO_BASE, 0x50000000
+  .equ THIRTY_CM, 1740 //1740 is 30cm
 
   navigation_control:
     bl measure_distance
 
   check_distance:
     bl get_cc_1 // puts CC1 register value to R1
-    cmp r1, #290 //290 is 5cm
+    ldr r8, =THIRTY_CM
+    cmp r1, r8
     ble break
     bgt advance
     b navigation_control
 
-  led_on:
-    ldr R0, =GIPIO_BASE // load OUT register to R0
-    ldr R1, [R0, #0x504] // load contents of R0 to R1
-    orr R1, #(1<<2) // toogle bit 2 of OUT register on/off
-    str R1, [R0, #0x504] // store contents the new value of R1 to R0, this will set pin 2 high
-    pop {lr}
-    b navigation_control
+  @ led_on:
+  @   ldr R0, =GIPIO_BASE // load OUT register to R0
+  @   ldr R1, [R0, #0x504] // load contents of R0 to R1
+  @   orr R1, #(1<<2) // toogle bit 2 of OUT register on/off
+  @   str R1, [R0, #0x504] // store contents the new value of R1 to R0, this will set pin 2 high
+  @   pop {lr}
+  @   b navigation_control
 
-  led_off:
-    ldr R0, =GIPIO_BASE // load OUT register to R0
-    ldr R1, [R0, #0x504] // load contents of R0 to R1
-    and R1, #(0<<2) // toogle bit 2 of OUT register on/off
-    str R1, [R0, #0x504] // store contents the new value of R1 to R0, this will set pin 2 high
-    b navigation_control
+  @ led_off:
+  @   ldr R0, =GIPIO_BASE // load OUT register to R0
+  @   ldr R1, [R0, #0x504] // load contents of R0 to R1
+  @   and R1, #(0<<2) // toogle bit 2 of OUT register on/off
+  @   str R1, [R0, #0x504] // store contents the new value of R1 to R0, this will set pin 2 high
+  @   b navigation_control
 
   advance:
    bl go_forward
    b navigation_control
   break:
     bl car_stop
-    b navigation_control
+    b rotate_to_the_right
   rotate_to_the_right:
     bl rotate_right
+    mov r5, #1000
+    bl delay_ms
     b navigation_control
 
     @ bl go_forward

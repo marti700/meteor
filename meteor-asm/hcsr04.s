@@ -101,31 +101,4 @@
         bl capture_time // copy timer value to CC1 register
         pop {lr}
         bx lr
-        @ b check_distance
 
-    @ check_distance:
-    @     bl get_cc_1 // puts CC1 register value to R1
-    @     cmp r1, #290 //290 is 5cm
-    @     @ ble led_on
-    @     @ bgt led_off
-
-    led_on:
-        push {lr}
-        ldr R0, =GIPIO_BASE // load OUT register to R0
-        ldr R1, [R0, #0x504] // load contents of R0 to R1
-        orr R1, #(1<<2) // toogle bit 2 of OUT register on/off
-        str R1, [R0, #0x504] // store contents the new value of R1 to R0, this will set pin 2 high
-        pop {lr}
-        bx lr
-        @ b measure_distance
-
-    led_off:
-        push {lr}
-        ldr R0, =GIPIO_BASE // load OUT register to R0
-        ldr R1, [R0, #0x504] // load contents of R0 to R1
-        and R1, #(0<<2) // toogle bit 2 of OUT register on/off
-        str R1, [R0, #0x504] // store contents the new value of R1 to R0, this will set pin 2 high
-        pop {lr}
-        bx lr
-        @ b measure_distance
-///
