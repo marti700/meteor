@@ -44,7 +44,7 @@
     b rotate_to_the_right
   rotate_to_the_right:
     bl rotate_right
-    mov r5, #1000
+    mov r5, #500
     bl delay_ms
     b navigation_control
 
