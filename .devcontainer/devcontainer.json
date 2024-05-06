@@ -11,7 +11,12 @@
       ]
     }
   },
-  "forwardPorts": [
-    "localhost:3333"
-  ]
+  "runArgs": [
+    "--network=host"
+  ],
+  "containerEnv": {
+    "SHELL" : "/bin/bash",
+    "ROS_DOMAIN_ID": "5"
+  },
+  "postCreateCommand": "echo \"source /opt/ros/humble/setup.bash\" >> ~/.bashrc"
 }
