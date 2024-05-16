@@ -1,3 +1,4 @@
+@ This file define functions to control microbit shield motor 1 according to the HR8833 datasheet
 .thumb
   .syntax unified
 
@@ -21,6 +22,7 @@
   .equ MODE1, 0x00
 
 
+  // makes to motor go forward
   m1_forward:
     push {lr}
     bl reset_m1
@@ -28,6 +30,7 @@
     pop {lr}
     bx lr
 
+  // puts the motor in reverse
   m1_reverse:
     push {lr}
     bl reset_m1
@@ -35,6 +38,7 @@
     pop {lr}
     bx lr
 
+  // stop the motor
   m1_stop:
     push {lr}
     bl reset_m1
@@ -43,7 +47,6 @@
     pop {lr}
     bx lr
 
-  // the motor in reverse sets pwm wave by assinging values to the LED3_ON and LED6_OFF registers
   set_led6:
     push {lr}
     // in order to use PWM is necesary to enable the PCA9685PW clock by setting the SLEEP bit of MODE 1 register to 0
@@ -107,6 +110,7 @@
     pop {lr}
     bx lr
 
+  // set motor 1 to its reset values
   reset_m1:
     push {lr}
     bl reset_l6

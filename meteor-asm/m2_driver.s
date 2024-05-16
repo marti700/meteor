@@ -1,3 +1,4 @@
+@ This file define functions to control microbit shield motor 2 according to the HR8833 datasheet
 .thumb
   .syntax unified
 

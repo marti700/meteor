@@ -1,3 +1,4 @@
+// This file defines functions to handle timer 1 of the microbit
 .thumb
     .syntax unified
     .global reset_timer
@@ -28,6 +29,7 @@
     .equ CC_2, 0x548
     .equ CC_3, 0x54C
 
+    // rest timer to its initial state
     reset_timer:
         ldr r0, =TIMER0_BASE
         mov r1, #1
@@ -92,6 +94,7 @@
         str r1, [r0, #TASK_START]
         bx lr
 
+     // perform a delay of the specified number of milli seconds
      delay_ms:
         push {lr}
         bl reset_timer

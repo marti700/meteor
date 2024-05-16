@@ -1,3 +1,5 @@
+@  This file defines functions to control de IIC comunication between the motorshield
+@  (see https://wiki.dfrobot.com/Micro_bit_Driver_Expansion_Board_SKU_DFR0548) and the microbit
 .thumb
   .syntax unified
   .global init_PCA9685
@@ -23,6 +25,13 @@
   .equ RXDREADY, 0x108
   .equ ERROR_SRC, 0x4C4
   .equ MODE1, 0x00
+
+  // initialize the PCA9685, this is the chip inside the microbit motor shield
+  // this function do the following
+  // 1. set thhe SCL (to microbit pin 19) and SDA (to micorbit pin 20)
+  // 2. set the comunication frecuency to 100nbps
+  // 3. enable IIC
+  // 4. Sets the slave address to 0x40 which is the one configured by the microbit shield manufacturer
 
   init_PCA9685:
     ldr R0, =TWI_BASE
@@ -106,6 +115,11 @@
 
     bx lr
 
+  // Each time a package is sent to the microbit shield through TWI the microbit shield responds
+  // with an ACK (which means it executed the order correctly) or a NACK (which means the order was not executed)
+  // after an order is sent is necesary to wait one of these states (ACK/NACK) before the next order is sent,
+  // otherwise the previos order won't be executed. This functions waits for ACKs and clears the TXDSENT event register
+  // before returning.
   wait_for_ack:
     push {lr}
     ldr r0, =TWI_BASE

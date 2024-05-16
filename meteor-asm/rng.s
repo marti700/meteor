@@ -1,3 +1,5 @@
+// this file defines function to enable the random number generation module of the nrf52833 and to
+// retrieve the generated random number
 .thumb
   .syntax unified
 
@@ -9,7 +11,7 @@
 
   .equ RNG_BASE, 0x4000D000
   .equ TASK_START, 0x000
-  .equ TAST_STOP, 0x004
+  .equ TASTK_STOP, 0x004
   .equ EVENTS_VALRDY, 0x100
   .equ CONFIG, 0x504
   .equ VALUE, 0x508

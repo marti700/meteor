@@ -1,3 +1,4 @@
+  @ This file defines function that control the car navigation logic
 .thumb
   .syntax unified
 
@@ -5,13 +6,6 @@
 
   .text
   .thumb_func
-
-  .equ RNG_BASE, 0x4000D000
-  .equ TASK_START, 0x000
-  .equ TAST_STOP, 0x004
-  .equ EVENTS_VALRDY, 0x100
-  .equ CONFIG, 0x504
-  .equ VALUE, 0x508
 
   .equ one_second, 2000
   .equ GIPIO_BASE, 0x50000000
@@ -50,9 +44,9 @@
     bl car_stop
     // this write a random number to R! see rng.s file
     bl get_rnd_number
-    tst r1, #1
+    tst r1, #1 // test if the number is even/odd
     bne rotate_to_the_left // odd number
-    b rotate_to_the_right
+    b rotate_to_the_right // rotate right when number is even
 
   rotate_to_the_right:
     bl rotate_right
