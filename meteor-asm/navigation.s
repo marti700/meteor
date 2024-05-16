@@ -6,6 +6,13 @@
   .text
   .thumb_func
 
+  .equ RNG_BASE, 0x4000D000
+  .equ TASK_START, 0x000
+  .equ TAST_STOP, 0x004
+  .equ EVENTS_VALRDY, 0x100
+  .equ CONFIG, 0x504
+  .equ VALUE, 0x508
+
   .equ one_second, 2000
   .equ GIPIO_BASE, 0x50000000
   .equ THIRTY_CM, 1740 //1740 is 30cm
@@ -17,7 +24,7 @@
     bl get_cc_1 // puts CC1 register value to R1
     ldr r8, =THIRTY_CM
     cmp r1, r8
-    ble break
+    ble find_new_path
     bgt advance
     b navigation_control
 
@@ -39,11 +46,21 @@
   advance:
    bl go_forward
    b navigation_control
-  break:
+  find_new_path:
     bl car_stop
+    // this write a random number to R! see rng.s file
+    bl get_rnd_number
+    tst r1, #1
+    bne rotate_to_the_left // odd number
     b rotate_to_the_right
+
   rotate_to_the_right:
     bl rotate_right
+    mov r5, #500
+    bl delay_ms
+    b navigation_control
+  rotate_to_the_left:
+    bl rotate_left
     mov r5, #500
     bl delay_ms
     b navigation_control

@@ -9,6 +9,7 @@
 
   main:
     @ bl measure_distance
+    bl init_rng
     bl init_PCA9685
     b navigation_control
 
