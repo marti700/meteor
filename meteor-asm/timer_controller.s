@@ -8,6 +8,7 @@
     .global wait_80_ms
     .global start_timer
     .global delay_ms
+    .global light_timer_reset
 
     .text
     .thumb_func
@@ -55,6 +56,13 @@
         ldr r1, =eighty_ms
         str r1, [r0, #CC_3]
 
+        bx lr
+
+    light_timer_reset:
+        ldr r0, =TIMER0_BASE
+        mov r1, #1
+        str r1, [r0, #TASK_STOP] // stop timer
+        str r1, [r0, #TASK_CLEAR] // clear timer
         bx lr
 
     wait_10_us:

@@ -9,9 +9,9 @@
 
   main:
     @ bl measure_distance
-    bl init_rng
-    bl init_PCA9685
-    b navigation_control
+    bl nec
+    @ bl init_PCA9685
+    @ b navigation_control
 
     @ bl go_forward
     @ ldr r5, =one_second
