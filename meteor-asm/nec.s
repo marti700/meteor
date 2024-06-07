@@ -52,6 +52,7 @@
         str r1, [r2, #GPIOTE_CONFIG_0]
 
     on_pin_event:
+        ldr r2, =GPIOTE_BASE
         ldr r1, [r2, #GPIOTE_EVENTS_IN_0]
         tst r1, #1
         bne wait_for_status_change
@@ -60,9 +61,9 @@
     wait_for_status_change:
         cmp r8, #32
         beq execute_action
-        ldr r2, =GPIOTE_BASE
-        mov r1, #0
-        str r1, [r2, #GPIOTE_EVENTS_IN_0]
+        @ mov r1, #0
+        @ str r1, [r2, #GPIOTE_EVENTS_IN_0]
+        bl clear_pin_evt
         bl prepare_timer
     wait_for_status_change_inner:
         ldr r1, [r2, #GPIOTE_EVENTS_IN_0]
@@ -160,10 +161,19 @@
         cmp r5, r6
         beq drive_rotate_left
         //ROTATION END
+        b after_action_cleanup
 
     after_action_cleanup:
+        bl clear_pin_evt
         mov r8, #0
-        b wait_for_status_change
+        mov r5, #0
+        b on_pin_event
+
+    clear_pin_evt:
+        ldr r2, =GPIOTE_BASE
+        mov r1, #0
+        str r1, [r2, #GPIOTE_EVENTS_IN_0]
+        bx lr
 
     drive_forward:
         bl go_forward
