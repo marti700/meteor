@@ -16,11 +16,11 @@
         //RC mode
         ldr r6, = RC_BUTTON_ONE
         cmp r5, r6
-        b enter_rc_mode
+        beq enter_rc_mode
         // autonommus mode
         ldr r6, = RC_BUTTON_TWO
         cmp r5, r6
-        b enter_autonomus_mode
+        beq enter_autonomus_mode
 
     enter_rc_mode:
         mov r5, #0
