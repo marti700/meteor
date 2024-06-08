@@ -100,67 +100,73 @@
         b wait_for_status_change
 
     execute_action:
-        // go forward when the left button is pressed
-        ldr r6, =RC_BUTTON_LEFT
+        // go forward when the up button is pressed
+        ldr r6, =RC_BUTTON_UP
         cmp r5, r6
         beq drive_forward
-        // go backwards when the right button is pressed
-        ldr r6, =RC_BUTTON_RIGHT
+        // go backwards when the down button is pressed
+        ldr r6, =RC_BUTTON_DOWN
         cmp r5, r6
         beq drive_backwards
 
         // THE DIAGONALS
-        // go upper diagonal right when button 1 is pressed
-        ldr r6, =RC_BUTTON_ONE
-        cmp r5, r6
-        beq drive_diagonal_upper_right
-        // go upper diagonal left when button 7 is pressed
-        ldr r6, =RC_BUTTON_SEVEN
-        cmp r5, r6
-        beq drive_diagonal_upper_left
-        // go downwards diagonal right when the button 3 is pressed
+        // go upper diagonal right when button 3 is pressed
         ldr r6, =RC_BUTTON_THREE
         cmp r5, r6
-        beq drive_diagonal_lower_right
-        // go downwards diagonal left when button 9 is pressed
+        beq drive_diagonal_upper_right
+        // go upper diagonal left when button 1 is pressed
+        ldr r6, =RC_BUTTON_ONE
+        cmp r5, r6
+        beq drive_diagonal_upper_left
+        // go downwards diagonal right when the button 9 is pressed
         ldr r6, =RC_BUTTON_NINE
+        cmp r5, r6
+        beq drive_diagonal_lower_right
+        // go downwards diagonal left when button 7 is pressed
+        ldr r6, =RC_BUTTON_SEVEN
         cmp r5, r6
         beq drive_diagonal_lower_left
         // THE DIAGONALS END
 
         // SIDEWAYS
-        // go sideways right when button 2 is pressed
-        ldr r6, =RC_BUTTON_TWO
+        // go sideways right when button 6 is pressed
+        ldr r6, =RC_BUTTON_SIX
         cmp r5, r6
         beq drive_sideways_right
 
-        // go sideways left when button 8 is pressed
-        ldr r6, =RC_BUTTON_EIGHT
+        // go sideways left when button 4 is pressed
+        ldr r6, =RC_BUTTON_FOUR
         cmp r5, r6
         beq drive_sideways_left
         // SIDEWAYS END
 
         // ROTATION AROUND AN AXIS
-        // rotate over an axis front when button 4 is pressed
-        ldr r6, =RC_BUTTON_FOUR
+        // rotate over an axis front when button 2 is pressed
+        ldr r6, =RC_BUTTON_TWO
         cmp r5, r6
         beq rotate_axis_front
-        // rotata around an axis rear when button 6 is pressed
-        ldr r6, =RC_BUTTON_SIX
+        // rotata around an axis rear when button 8 is pressed
+        ldr r6, =RC_BUTTON_EIGHT
         cmp r5, r6
         beq rotate_axis_back
         // ROTATION AROUND AN AXIS END
 
         //ROTATION
-        // rotate to the right when up button is pressed
-        ldr r6, =RC_BUTTON_UP
+        // rotate to the right when right button is pressed
+        ldr r6, =RC_BUTTON_RIGHT
         cmp r5, r6
         beq drive_rotate_right
-        // rotate to the left when down button is pressed
-        ldr r6, =RC_BUTTON_DOWN
+        // rotate to the left when left button is pressed
+        ldr r6, =RC_BUTTON_LEFT
         cmp r5, r6
         beq drive_rotate_left
         //ROTATION END
+
+        //stop the car when button 5 is pressed
+        ldr r6, =RC_BUTTON_FIVE
+        cmp r5, r6
+        beq drive_stop
+
         b after_action_cleanup
 
     after_action_cleanup:
@@ -174,6 +180,10 @@
         mov r1, #0
         str r1, [r2, #GPIOTE_EVENTS_IN_0]
         bx lr
+
+    drive_stop:
+        bl car_stop
+        b after_action_cleanup
 
     drive_forward:
         bl go_forward
