@@ -10,7 +10,7 @@
   main:
     @ bl measure_distance
     bl init_PCA9685
-    bl nec
+    b select_mode
     @ b navigation_control
 
     @ bl go_forward
