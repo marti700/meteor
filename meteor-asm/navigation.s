@@ -12,6 +12,7 @@
   .equ THIRTY_CM, 1740 //1740 is 30cm
 
   navigation_control:
+    bl init_rng
     bl measure_distance
 
   check_distance:
