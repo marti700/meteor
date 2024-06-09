@@ -2,6 +2,7 @@
     .syntax unified
     .global prepare_for_ir_transmission
     .global on_transmission_start
+    .global rc_pin_pulled_low
 
     .text
     .thumb_func
@@ -12,6 +13,12 @@
     .equ GPIOTE_CONFIG_0,             0x510
     .equ GPIOTE_CONFIG_0_CONF,        0x20201
     .equ NINE_SECONDS,                9000
+
+    rc_pin_pulled_low:
+        ldr r2, =GPIOTE_BASE
+        ldr r1, [r2, #GPIOTE_EVENTS_IN_0]
+        bx lr
+
 
     prepare_for_ir_transmission:
         mov r8, #0

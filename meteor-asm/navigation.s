@@ -9,14 +9,22 @@
 
   .equ one_second, 2000
   .equ GIPIO_BASE, 0x50000000
-  .equ THIRTY_CM, 1740 //1740 is 30cm
+  .equ THIRTY_CM, 1740 //1740us is 30cm
+
+  go_to_mode_selection:
+    bl car_stop
+    b select_mode
 
   navigation_control:
+    bl rc_pin_pulled_low
+    cmp r1, #1
+    beq go_to_mode_selection
+
     bl init_rng
     bl measure_distance
 
-  check_distance:
-    bl get_cc_1 // puts CC1 register value to R1
+    check_distance:
+    bl get_cc_1 // get CC1 register value from R1
     ldr r8, =THIRTY_CM
     cmp r1, r8
     ble find_new_path
@@ -41,6 +49,7 @@
   advance:
    bl go_forward
    b navigation_control
+
   find_new_path:
     bl car_stop
     // this write a random number to R! see rng.s file

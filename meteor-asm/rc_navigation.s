@@ -28,6 +28,8 @@
     .equ RC_BUTTON_LEFT,              0xff10ef
     .equ RC_BUTTON_DOWN,              0xff4ab5
     .equ RC_BUTTON_RIGHT,             0xff5aa5
+    .equ RC_BUTTON_OK,                0xff38c7
+
     @ .equ BUTTON_TABLE_SIZE,           12
 
     @ BUTTON_TABLE:
@@ -116,6 +118,11 @@
         cmp r5, r6
         beq drive_stop
 
+        //enter selection_mode when OK button is pressed
+        ldr r6, =RC_BUTTON_OK
+        cmp r5, r6
+        beq go_to_mode_selection
+
         b action_loop
 
     @ action_loop:
@@ -129,6 +136,10 @@
         mov r1, #0
         str r1, [r2, #GPIOTE_EVENTS_IN_0]
         bx lr
+
+    go_to_mode_selection:
+        bl car_stop
+        b select_mode
 
     drive_stop:
         bl car_stop
