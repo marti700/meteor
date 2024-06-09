@@ -80,8 +80,8 @@
         ldr r1, [r0, #0x510]
         tst r1, #(1<<4)
 
-        /// THIS IS A TIMEOUT its porpouse is to start measuring distance from the
-        //beginning when no echo is recieved but apparently this is not necessary
+        /// THIS IS A TIMEOUT it's porpouse is to restart distance measuring
+        //when no echo is recieved but apparently this is not necessary
         @ ldr r2, =TIMER0_BASE
         @ ldr r3, [r2, #0x14C]
         @ tst r3, #1

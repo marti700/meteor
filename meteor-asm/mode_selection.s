@@ -29,8 +29,3 @@
     enter_autonomus_mode:
         mov r5, #0
         b navigation_control
-
-
-
-
-

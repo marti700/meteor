@@ -156,6 +156,3 @@
     bl m4_reverse
     pop {lr}
     bx lr
-
-
-

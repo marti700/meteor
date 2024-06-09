@@ -19,7 +19,6 @@
         ldr r1, [r2, #GPIOTE_EVENTS_IN_0]
         bx lr
 
-
     prepare_for_ir_transmission:
         mov r8, #0
         ldr r2, =GPIOTE_BASE
@@ -41,8 +40,6 @@
     wait_for_status_change:
         cmp r8, #32
         beq end_of_message
-        @ mov r1, #0
-        @ str r1, [r2, #GPIOTE_EVENTS_IN_0]
         bl clear_pin_evt
         bl prepare_timer
     wait_for_status_change_inner:
@@ -57,36 +54,20 @@
         b wait_for_status_change_inner
 
     capture_time_inf:
-        @ cmp r3, #1
-        @ beq ccc
         bl capture_time
         bl get_cc_1
         ldr r4, =NINE_SECONDS
         cmp r1, r4
-        @ bgt wait_for_status_change
         bgt mark_transmission_start
-        @ bl validate_code
         cmp r1, #1600
         blt add_zero
         bgt add_one
 
     mark_transmission_start:
-        mov r6, #1
+        @ mov r6, #1
         mov r8, #0
+        mov r5, #0
         b wait_for_status_change
-
-
-    @ // if r6 is 0 and r7 is not the code being recorded will be invalid
-    @ // the program will give up te decoding and will wait for the user to
-    @ // press a key again
-    @ validate_code:
-    @     cmp r6, #0
-    @     beq not_zero_r7
-    @     bx lr
-    @ not_zero_r7:
-    @     cmp r7, #0
-    @     bgt end_of_message
-    @     bx lr
 
     add_zero:
         lsl r5, 1

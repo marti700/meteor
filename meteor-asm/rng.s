@@ -16,10 +16,6 @@
   .equ CONFIG, 0x504
   .equ VALUE, 0x508
 
-  .equ one_second, 2000
-  .equ GIPIO_BASE, 0x50000000
-  .equ THIRTY_CM, 1740 //1740 is 30cm
-
   init_rng:
     // start randon number generation
     ldr r0, =RNG_BASE

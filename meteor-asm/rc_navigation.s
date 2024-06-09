@@ -125,12 +125,6 @@
 
         b action_loop
 
-    @ action_loop:
-    @     bl clear_pin_evt
-    @     @ mov r8, #0
-    @     @ mov r5, #0
-    @     b on_pin_event
-
     clear_pin_evt:
         ldr r2, =GPIOTE_BASE
         mov r1, #0
@@ -192,11 +186,3 @@
     drive_rotate_left:
         bl rotate_left
         b action_loop
-
-
-    @ execute_action:
-    @     ldr r6 =BUTTON_TABLE
-    @     lsl r5, r5, #2
-    @     add r6, r6, r5
-    @     ldr pc, [r6]
-
