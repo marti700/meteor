@@ -13,6 +13,7 @@
 
   go_to_mode_selection:
     bl car_stop
+    bl clear_pin_evt
     b select_mode
 
   navigation_control:
@@ -24,16 +25,16 @@
     bl measure_distance
 
     check_distance:
-    bl get_cc_1 // get CC1 register value from R1
-    ldr r8, =THIRTY_CM
-    cmp r1, r8
-    ble find_new_path
-    bgt advance
-    b navigation_control
+      bl get_cc_1 // get CC1 register value from R1
+      ldr r8, =THIRTY_CM
+      cmp r1, r8
+      ble find_new_path
+      bgt advance
+      b navigation_control
 
   advance:
-   bl go_forward
-   b navigation_control
+    bl go_forward
+    b navigation_control
 
   find_new_path:
     bl car_stop

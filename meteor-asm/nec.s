@@ -5,6 +5,7 @@
     .global prepare_for_ir_transmission
     .global on_transmission_start
     .global rc_pin_pulled_low
+    .global clear_pin_evt
 
     .text
     .thumb_func

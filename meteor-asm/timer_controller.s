@@ -9,6 +9,7 @@
     .global start_timer
     .global delay_ms
     .global light_timer_reset
+    .global clear_cc3_event
 
     .text
     .thumb_func
@@ -100,6 +101,12 @@
         ldr r0, =TIMER0_BASE
         mov r1, #1
         str r1, [r0, #TASK_START]
+        bx lr
+
+    clear_cc3_event:
+        ldr r0, =0x40008000
+        mov r1, #0
+        ldr r1, [r0, #0x14C]
         bx lr
 
      // perform a delay of the specified number of milli seconds

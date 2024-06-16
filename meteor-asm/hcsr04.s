@@ -15,10 +15,6 @@
 
     .equ GIPIO_BASE, 0x50000000
 
-    // IMPORTANT STUFF
-    // for some reason the reset button of the microbit needs to be pressed for this program to work
-    // i don't know why but hopefully one of this days i will know XD
-
     @ This assembly code is used to measure distances using the hs-sr04 ultrasonic
     @ sensor and it works as follows:
 
@@ -76,27 +72,31 @@
         b wait_for_echo
 
     wait_for_echo:
+        bl clear_cc3_event
+        bl start_timer
+    wait_for_echo_inner:
+        /// THIS IS A TIMEOUT it's porpouse is to restart distance measuring
+        //when no echo is recieved.
+        ldr r2, =0x40008000
+        ldr r3, [r2, #0x14C]
+        tst r3, #1
+        bne measure_distance
+        // Timeout end
+
         ldr r0, =GIPIO_BASE
         ldr r1, [r0, #0x510]
         tst r1, #(1<<4)
-
-        /// THIS IS A TIMEOUT it's porpouse is to restart distance measuring
-        //when no echo is recieved but apparently this is not necessary
-        @ ldr r2, =TIMER0_BASE
-        @ ldr r3, [r2, #0x14C]
-        @ tst r3, #1
-        @ beq measure_distance
-        ///
-
-        beq wait_for_echo
-        bl start_timer
+        beq wait_for_echo_inner
+        bl reset_timer
         b wait_echo_to_go_low
 
     wait_echo_to_go_low:
+        bl start_timer
+    wait_echo_to_go_low_inner:
         ldr r0, =GIPIO_BASE
         ldr r1, [r0, #0x510]
         tst r1, #0x10
-        bne wait_echo_to_go_low
+        bne wait_echo_to_go_low_inner
 
         bl capture_time // copy timer value to CC1 register
         pop {lr}
