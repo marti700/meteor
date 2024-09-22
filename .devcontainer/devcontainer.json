@@ -10,8 +10,5 @@
         "marus25.cortex-debug"
       ]
     }
-  },
-  "forwardPorts": [
-    "localhost:3333"
-  ]
+  }
 }
