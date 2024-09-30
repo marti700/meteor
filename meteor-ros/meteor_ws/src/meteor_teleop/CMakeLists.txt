@@ -16,6 +16,7 @@ add_executable(mctrl_teleop src/mctrl_teleop.cpp)
 target_include_directories(mctrl_teleop PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+target_link_libraries(mctrl_teleop /usr/lib/aarch64-linux-gnu/libserial.so /usr/lib/aarch64-linux-gnu/libjsoncpp.so)
 target_compile_features(mctrl_teleop PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 ament_target_dependencies(
   mctrl_teleop
@@ -24,6 +25,7 @@ ament_target_dependencies(
   "joy"
   "teleop_twist_joy"
 )
+
 
 install(TARGETS mctrl_teleop
   DESTINATION lib/${PROJECT_NAME})
