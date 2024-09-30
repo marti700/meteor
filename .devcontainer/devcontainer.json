@@ -11,7 +11,12 @@
       ]
     }
   },
-  "forwardPorts": [
-    "localhost:3333"
+  "mounts": [
+    "source=/dev,target=/dev,type=bind"
+  ],
+  "runArgs": [
+    "--device-cgroup-rule=c *:* rmw",
+    "--privileged",
+    "--network=host"
   ]
 }
