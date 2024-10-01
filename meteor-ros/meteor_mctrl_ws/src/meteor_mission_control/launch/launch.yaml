@@ -1,0 +1,28 @@
+launch:
+  - node:
+      pkg: joy_linux
+      exec: joy_linux_node
+      name: joy_linux_node
+      param:
+        - name: deadzone
+          value: 0.15
+        - name: autorepeat_rate
+          value: 20.0
+
+  - node:
+      pkg: teleop_twist_joy
+      exec: teleop_node
+      name: teleop_twist_joy_node
+      param:
+        - name: enable_button
+          value: -1
+        - name: require_enable_button
+          value: false
+        - name: axis_linear.x
+          value: 1
+        - name: axis_angular.yaw
+          value: 0
+        - name: scale_linear.x
+          value: 0.5
+        - name: scale_angular.yaw
+          value: 0.5
