@@ -17,7 +17,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
      ros-humble-teleop-twist-joy \
      libjsoncpp-dev \
      libserial-dev \
-
   && rm -rf /var/lib/apt/lists/*
 
 # Source the ROS 2 setup file and update .bashrc
