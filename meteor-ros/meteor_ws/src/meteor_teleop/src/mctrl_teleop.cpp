@@ -8,40 +8,12 @@
 
 class MctrlTeleop : public rclcpp::Node
 {
+
 public:
   MctrlTeleop() : Node("mctrl_teleop")
   {
     subscriber_ = this->create_subscription<geometry_msgs::msg::Twist>(
         "cmd_vel", 0, std::bind(&MctrlTeleop::teleop_callback, this, std::placeholders::_1));
-
-    try
-    {
-      // Open the serial port once during initialization
-      my_serial.Open("/dev/ttyS0");
-      my_serial.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
-
-      if (!my_serial.IsOpen())
-      {
-        throw std::runtime_error("Failed to open serial port!");
-      }
-    }
-    catch (const LibSerial::OpenFailed &e)
-    {
-      RCLCPP_ERROR(this->get_logger(), "Failed to open serial port: %s", e.what());
-    }
-    catch (const std::exception &e)
-    {
-      RCLCPP_ERROR(this->get_logger(), "Error: %s", e.what());
-    }
-  }
-
-  ~MctrlTeleop()
-  {
-    // Close the serial port when the node is destroyed
-    if (my_serial.IsOpen())
-    {
-      my_serial.Close();
-    }
   }
 
 private:
@@ -51,14 +23,28 @@ private:
 
     try
     {
+      // Configure the serial port
+      my_serial.Open("/dev/ttyS0");
+      my_serial.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
+
+      if (!my_serial.IsOpen())
+      {
+        std::cerr << "Failed to open serial port!" << std::endl;
+      }
       std::string command = build_json(msg);
-      RCLCPP_INFO(this->get_logger(), "Sending command: %s", command.c_str());
+      std::cout << command << std::endl;
       my_serial.Write(command + "\n");
+    }
+
+    catch (const LibSerial::OpenFailed &e)
+    {
+      std::cerr << "Failed to open serial port: " << e.what() << std::endl;
     }
     catch (const std::exception &e)
     {
-      RCLCPP_ERROR(this->get_logger(), "Error: %s", e.what());
+      std::cerr << "Error: " << e.what() << std::endl;
     }
+    my_serial.Close();
   }
 
   std::string build_json(const geometry_msgs::msg::Twist::SharedPtr msg)
@@ -77,10 +63,11 @@ private:
     R = std::clamp(R, -0.5, 0.5);
 
     std::ostringstream oss;
+    // std::cout << msg->linear.x << " " << msg->linear.z << std::endl;
     oss << "{\"T\":1,\"L\":" << L << ",\"R\":" << R << "}";
+    // std::cout << oss.str() << std::endl;
     return oss.str();
   }
-
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscriber_;
   LibSerial::SerialPort my_serial;
 };
@@ -88,6 +75,7 @@ private:
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
+  // auto node = std::make_shared<rclcpp::Node>("mctrl_telop");
   rclcpp::spin(std::make_shared<MctrlTeleop>());
   rclcpp::shutdown();
   return 0;
