@@ -12,27 +12,40 @@ class MctrlTeleop : public rclcpp::Node
 public:
   MctrlTeleop() : Node("mctrl_teleop")
   {
+    open_serial_port();
+
     subscriber_ = this->create_subscription<geometry_msgs::msg::Twist>(
-        "cmd_vel", 0, std::bind(&MctrlTeleop::teleop_callback, this, std::placeholders::_1));
+        "cmd_vel", 1, std::bind(&MctrlTeleop::teleop_callback, this, std::placeholders::_1));
   }
 
 private:
-  void teleop_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+  void open_serial_port()
   {
-    RCLCPP_INFO(this->get_logger(), "Received cmd_vel message: linear.x=%.2f, angular.z=%.2f", msg->linear.x, msg->angular.z);
-
     try
     {
       // Configure the serial port
       my_serial.Open("/dev/ttyS0");
       my_serial.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
+    }
+    catch (const LibSerial::OpenFailed &e)
+    {
+      std::cerr << "Failed to open serial port: " << e.what() << std::endl;
+    }
+  }
+
+  void teleop_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
+  {
+    // RCLCPP_INFO(this->get_logger(), "Received cmd_vel message: linear.x=%.2f, angular.z=%.2f", msg->linear.x, msg->angular.z);
+
+    try
+    {
 
       if (!my_serial.IsOpen())
       {
         std::cerr << "Failed to open serial port!" << std::endl;
       }
       std::string command = build_json(msg);
-      std::cout << command << std::endl;
+      // std::cout << command << std::endl;
       my_serial.Write(command + "\n");
     }
 
@@ -43,8 +56,8 @@ private:
     catch (const std::exception &e)
     {
       std::cerr << "Error: " << e.what() << std::endl;
+      my_serial.Close();
     }
-    my_serial.Close();
   }
 
   std::string build_json(const geometry_msgs::msg::Twist::SharedPtr msg)
