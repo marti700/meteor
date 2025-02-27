@@ -19,6 +19,7 @@ class ImageProcessor(Node):
             10)
         self.subscription  # prevent unused variable warning
         self.bridge = CvBridge()
+        self.frame_counter = 3 # frame counter to execute inference model
 
         # Initialize YOLOv11 model
         self.model = self.initialize_yolo()
@@ -51,15 +52,14 @@ class ImageProcessor(Node):
             '-f', 'rawvideo',  # Input format is raw video
             '-vcodec', 'rawvideo',  # Input video codec is raw video
             '-pix_fmt', 'bgr24',  # Pixel format is BGR24 (OpenCV format)
-            # '-s', "{}x{}".format(640, 480),  # Set frame size
-            '-s', "640x480",
-            '-r', str(20),  # Set frame rate
+            '-s', "{}x{}".format(640, 480),  # Set frame size
+            '-r', str(24),  # Set frame rate
             '-i', '-',  # Input comes from a pipe
             '-vcodec', 'libx264',  # Output video codec is libx264 (H.264 encoding)
             '-pix_fmt', 'yuv420p',  # Pixel format for the encoded video
             '-preset', 'ultrafast',  # Encoding preset (faster encoding, lower quality)
             '-tune', 'zerolatency',  # Tune for zero latency streaming
-            '-f', 'rtp',  # Output format is RTP (Real-time Transport Protocol)
+            '-f', 'rtp'  # Output format is RTP (Real-time Transport Protocol)
         ]
 
         # Read RTP address from environment variable
@@ -72,24 +72,30 @@ class ImageProcessor(Node):
         self.get_logger().info('Processing video frame')
         frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
 
-        # Perform object detection with YOLOv11 (NCNN or PyTorch)
-        results = self.model(frame)  # Run inference
+        # Execute model each 3 frames
+        if self.frame_counter == 0:
+            # Perform object detection with YOLOv11 (NCNN or PyTorch)
+            results = self.model(frame)  # Run inference
 
-        # Process the results
-        for result in results:
-            boxes = result.boxes
-            for box in boxes:
-                xyxy = box.xyxy[0].int().cpu().numpy()  # Bounding box coordinates (x1, y1, x2, y2)
-                cls = int(box.cls[0])  # Class ID
-                conf = box.conf[0]  # Confidence score
+            # Process the results
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    xyxy = box.xyxy[0].int().cpu().numpy()  # Bounding box coordinates (x1, y1, x2, y2)
+                    cls = int(box.cls[0])  # Class ID
+                    conf = box.conf[0]  # Confidence score
 
-                # If the detected object is a "sports ball" and the confidence is above 50%
-                if cls == 32 and conf > 0.5:  # Sports ball class (class ID might be different, double check)
-                    class_name = self.model.names[cls]  # Get class name
-                    cv2.rectangle(frame, xyxy[:2], xyxy[2:], (0, 0, 255), 2)  # Draw red rectangle
-                    cv2.putText(frame, f'{class_name}: {conf:.2f}', (xyxy[0], xyxy[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)  # Add text label
+                    # If the detected object is a "sports ball" and the confidence is above 50%
+                    if cls == 32 and conf > 0.5:  # Sports ball class (class ID might be different, double check)
+                        class_name = self.model.names[cls]  # Get class name
+                        cv2.rectangle(frame, xyxy[:2], xyxy[2:], (0, 0, 255), 2)  # Draw red rectangle
+                        cv2.putText(frame, f'{class_name}: {conf:.2f}', (xyxy[0], xyxy[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)  # Add text label
 
-                    # self.steer_car(frame, xyxy)  # Call steer to object location
+                        # self.steer_car(frame, xyxy)  # Call steer to object location
+
+            self.frame_counter = 3
+
+        self.frame_counter = self.frame_counter -1
 
         # Write the processed frame to FFmpeg for streaming
         self.ffmpeg_process.stdin.write(frame.tobytes())
