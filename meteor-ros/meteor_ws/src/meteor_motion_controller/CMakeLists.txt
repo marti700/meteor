@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(meteor_teleop)
+project(meteor_motion_controller)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -12,22 +12,20 @@ find_package(rclcpp_components REQUIRED)
 find_package(joy REQUIRED)
 find_package(teleop_twist_joy REQUIRED)
 
-add_executable(mctrl_teleop src/mctrl_teleop.cpp)
-target_include_directories(mctrl_teleop PUBLIC
+add_executable(motion_controller src/motion_controller.cpp)
+target_include_directories(motion_controller PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(mctrl_teleop /usr/lib/aarch64-linux-gnu/libserial.so /usr/lib/aarch64-linux-gnu/libjsoncpp.so)
-target_compile_features(mctrl_teleop PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_link_libraries(motion_controller /usr/lib/aarch64-linux-gnu/libserial.so /usr/lib/aarch64-linux-gnu/libjsoncpp.so)
+target_compile_features(motion_controller PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 ament_target_dependencies(
-  mctrl_teleop
+  motion_controller
   "rclcpp"
-  "rclcpp_components"
   "joy"
   "teleop_twist_joy"
 )
 
-
-install(TARGETS mctrl_teleop
+install(TARGETS motion_controller
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
