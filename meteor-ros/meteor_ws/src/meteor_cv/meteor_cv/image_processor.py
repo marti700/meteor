@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import rclpy
+import os
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 import cv2
 from cv_bridge import CvBridge
 from ultralytics import YOLO
-import serial
 import subprocess
+from geometry_msgs.msg import Twist
 
 class ImageProcessor(Node):
     def __init__(self):
@@ -19,18 +20,16 @@ class ImageProcessor(Node):
             10)
         self.subscription  # prevent unused variable warning
         self.bridge = CvBridge()
-        self.frame_counter = 3 # frame counter to execute inference model
+        self.frame_counter = 3  # frame counter to execute inference model
 
         # Initialize YOLOv11 model
         self.model = self.initialize_yolo()
 
-        # Initialize serial communication
-        # self.ser = serial.Serial('/dev/ttyS0', baudrate=115200, dsrdtr=None)
-        # self.ser.setRTS(False)
-        # self.ser.setDTR(False)
-
         # Initialize FFmpeg process
         self.ffmpeg_process = self.initialize_ffmpeg()
+
+        # Initialize publisher for cmd_vel
+        self.publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
 
     def initialize_yolo(self):
         try:
@@ -91,11 +90,11 @@ class ImageProcessor(Node):
                         cv2.rectangle(frame, xyxy[:2], xyxy[2:], (0, 0, 255), 2)  # Draw red rectangle
                         cv2.putText(frame, f'{class_name}: {conf:.2f}', (xyxy[0], xyxy[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)  # Add text label
 
-                        # self.steer_car(frame, xyxy)  # Call steer to object location
+                        self.steer_car(frame, xyxy)  # Call steer to object location
 
             self.frame_counter = 3
 
-        self.frame_counter = self.frame_counter -1
+        self.frame_counter = self.frame_counter - 1
 
         # Write the processed frame to FFmpeg for streaming
         self.ffmpeg_process.stdin.write(frame.tobytes())
@@ -106,26 +105,34 @@ class ImageProcessor(Node):
         center_y = (y_min + y_max) / 2
         return center_x, center_y
 
-    # def steer_car(self, frame, box_coordinates):
-    #     frame_center_x = frame.shape[1] / 2
-    #     frame_center_y = frame.shape[0] / 2
-    #     center_x, center_y = self.calculate_center(box_coordinates)
-    #     offset_x = center_x - frame_center_x
-    #     offset_y = center_y - frame_center_y
+    def steer_car(self, frame, box_coordinates):
+        frame_center_x = frame.shape[1] / 2
+        frame_center_y = frame.shape[0] / 2
+        center_x, center_y = self.calculate_center(box_coordinates)
+        offset_x = center_x - frame_center_x
+        offset_y = center_y - frame_center_y
 
-    #     move_forward = '{"T":1,"L":0.2,"R":0.2}\n'
-    #     turn_left = '{"T":1,"L":-0.2,"R":0.2}\n'
-    #     turn_right = '{"T":1,"L":0.2,"R":-0.2}\n'
+        move_forward = Twist()
+        move_forward.linear.x = 0.2
+        move_forward.angular.z = 0.0
 
-    #     if offset_x > 20:
-    #         self.ser.write(turn_right.encode())
-    #         self.get_logger().info("Turn right")
-    #     elif offset_x < -20:
-    #         self.ser.write(turn_left.encode())
-    #         self.get_logger().info("Turn left")
-    #     else:
-    #         self.ser.write(move_forward.encode())
-    #         self.get_logger().info("Move forward")
+        turn_left = Twist()
+        turn_left.linear.x = 0.2
+        turn_left.angular.z = 0.2
+
+        turn_right = Twist()
+        turn_right.linear.x = 0.2
+        turn_right.angular.z = -0.2
+
+        if offset_x > 20:
+            self.publisher_.publish(turn_right)
+            self.get_logger().info("Turn right")
+        elif offset_x < -20:
+            self.publisher_.publish(turn_left)
+            self.get_logger().info("Turn left")
+        else:
+            self.publisher_.publish(move_forward)
+            self.get_logger().info("Move forward")
 
 def main(args=None):
     rclpy.init(args=args)
