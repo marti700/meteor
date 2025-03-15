@@ -51,8 +51,9 @@ class ImageProcessor(Node):
             '-f', 'rawvideo',  # Input format is raw video
             '-vcodec', 'rawvideo',  # Input video codec is raw video
             '-pix_fmt', 'bgr24',  # Pixel format is BGR24 (OpenCV format)
+            # '-s', "{}x{}".format(320, 240),  # Set frame size
             '-s', "{}x{}".format(640, 480),  # Set frame size
-            '-r', str(24),  # Set frame rate
+            '-r', str(30),  # Set frame rate
             '-i', '-',  # Input comes from a pipe
             '-vcodec', 'libx264',  # Output video codec is libx264 (H.264 encoding)
             '-pix_fmt', 'yuv420p',  # Pixel format for the encoded video
@@ -70,6 +71,8 @@ class ImageProcessor(Node):
     def listener_callback(self, msg):
         self.get_logger().info('Processing video frame')
         frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+        frame_height, frame_width, _ = frame.shape
+        self.get_logger().info(f'Frame size=========>: {frame.shape}')
 
         # Execute model each 3 frames
         if self.frame_counter == 0:
@@ -114,15 +117,15 @@ class ImageProcessor(Node):
 
         move_forward = Twist()
         move_forward.linear.x = 0.2
-        move_forward.angular.z = 0.0
+        move_forward.linear.z = 0.2
 
         turn_left = Twist()
-        turn_left.linear.x = 0.2
-        turn_left.angular.z = 0.2
+        turn_left.linear.x = 0.3
+        turn_left.linear.z = -0.3
 
         turn_right = Twist()
-        turn_right.linear.x = 0.2
-        turn_right.angular.z = -0.2
+        turn_right.linear.x = -0.3
+        turn_right.linear.z = 0.3
 
         if offset_x > 20:
             self.publisher_.publish(turn_right)
