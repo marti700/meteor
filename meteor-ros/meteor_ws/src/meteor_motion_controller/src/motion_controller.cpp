@@ -63,17 +63,19 @@ private:
   std::string build_json(const geometry_msgs::msg::Twist::SharedPtr msg)
   {
     // Rotate axis by 45 degrees
-    double L = (0.707107 * msg->linear.x) + (-0.707107 * msg->angular.z);
-    double R = (0.707107 * msg->linear.x) + (0.707107 * msg->angular.z);
+    // double L = (0.707107 * msg->linear.x) + (-0.707107 * msg->angular.z);
+    // double R = (0.707107 * msg->linear.x) + (0.707107 * msg->angular.z);
 
-    if (msg->linear.x < 0 && (std::abs(L) != std::abs(R)))
-    {
-      std::swap(L, R);
-    }
+    // if (msg->linear.x < 0 && (std::abs(L) != std::abs(R)))
+    // {
+    //  std::swap(L, R);
+   // }
 
     // Ensure values stay within rover limits
-    L = std::clamp(L, -0.5, 0.5);
-    R = std::clamp(R, -0.5, 0.5);
+    //L = std::clamp(L, -0.5, 0.5);
+    //R = std::clamp(R, -0.5, 0.5);
+    double L = msg->linear.x;
+    double R = msg->linear.z;
 
     std::ostringstream oss;
     // std::cout << msg->linear.x << " " << msg->linear.z << std::endl;
