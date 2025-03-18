@@ -23,8 +23,7 @@ class ImageProcessor(Node):
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
-        self.bridge = CvBridge()
-        self.frame_counter = 3  # frame counter to execute inference model
+        # self.bridge = CvBridge()
 
         # Initialize YOLOv11 model with CUDA or NCNN fallback
         self.model = self.initialize_yolo()
@@ -91,28 +90,25 @@ class ImageProcessor(Node):
             self.get_logger().error("Failed to decode image")
             return
 
-        # frame_height, frame_width, _ = frame.shape
+        results = self.model(frame)
 
-        if self.frame_counter == 0:
-            results = self.model(frame)
+        for result in results:
+            boxes = result.boxes
+            for box in boxes:
+                xyxy = box.xyxy[0].int().cpu().numpy()
+                cls = int(box.cls[0])
+                conf = box.conf[0]
 
-            for result in results:
-                boxes = result.boxes
-                for box in boxes:
-                    xyxy = box.xyxy[0].int().cpu().numpy()
-                    cls = int(box.cls[0])
-                    conf = box.conf[0]
+                if cls == 32 and conf > 0.5:
+                # if cls == 0 and conf > 0.5:
+                    class_name = self.model.names[cls]
+                    # self.get_logger().error("Classs ====>" + class_name)
+                    cv2.rectangle(frame, xyxy[:2], xyxy[2:], (0, 0, 255), 2)
+                    cv2.putText(frame, f'{class_name}: {conf:.2f}', (xyxy[0], xyxy[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-                    if cls == 32 and conf > 0.5:
-                        class_name = self.model.names[cls]
-                        cv2.rectangle(frame, xyxy[:2], xyxy[2:], (0, 0, 255), 2)
-                        cv2.putText(frame, f'{class_name}: {conf:.2f}', (xyxy[0], xyxy[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-
-                        self.steer_car(frame, xyxy)
-
-            self.frame_counter = 3
-
-        self.frame_counter = self.frame_counter - 1
+                    self.steer_car(frame, xyxy)
+                else:
+                    self.stop_car()
 
         self.ffmpeg_process.stdin.write(frame.tobytes())
 
@@ -124,6 +120,12 @@ class ImageProcessor(Node):
         center_x = (x_min + x_max) / 2
         center_y = (y_min + y_max) / 2
         return center_x, center_y
+
+    def stop_car(self):
+        stop = Twist()
+        stop.linear.x = 0.0
+        stop.linear.z = 0.0
+        self.publisher_.publish(stop)
 
     def steer_car(self, frame, box_coordinates):
         frame_center_x = frame.shape[1] / 2
