@@ -34,8 +34,13 @@ class ImageProcessor(Node):
         # Initialize publisher for cmd_vel
         self.publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
 
+        # count the times the object have not been detected
+        self.loss_obj_counter = 0
+
         # Create a window for displaying the video preview
         cv2.namedWindow('Video Preview', cv2.WINDOW_NORMAL)
+
+
 
     def initialize_yolo(self):
         if torch.cuda.is_available():
@@ -86,6 +91,8 @@ class ImageProcessor(Node):
         # frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
         # self.get_logger().info(f'Frame size=========>: {frame.shape}')
 
+        frame_count = 0
+
         if frame is None:
             self.get_logger().error("Failed to decode image")
             return
@@ -99,18 +106,25 @@ class ImageProcessor(Node):
                 cls = int(box.cls[0])
                 conf = box.conf[0]
 
-                if cls == 32 and conf > 0.5:
+                # if cls == 32 and conf > 0.5:
+                if cls == 65 and conf > 0.5:
                 # if cls == 0 and conf > 0.5:
+                    self.loss_obj_counter = 0
                     class_name = self.model.names[cls]
-                    # self.get_logger().error("Classs ====>" + class_name)
+                    # self.get_logger().error("Classs ====>" + class_name  +  str(cls))
                     cv2.rectangle(frame, xyxy[:2], xyxy[2:], (0, 0, 255), 2)
                     cv2.putText(frame, f'{class_name}: {conf:.2f}', (xyxy[0], xyxy[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
                     self.steer_car(frame, xyxy)
-                else:
-                    self.stop_car()
 
-        self.ffmpeg_process.stdin.write(frame.tobytes())
+                elif self.loss_obj_counter == 10:
+                    self.stop_car()
+                else:
+                    self.loss_obj_counter = self.loss_obj_counter + 1
+
+
+
+        # self.ffmpeg_process.stdin.write(frame.tobytes())
 
         cv2.imshow('Video Preview', frame)
         cv2.waitKey(1)
@@ -125,6 +139,7 @@ class ImageProcessor(Node):
         stop = Twist()
         stop.linear.x = 0.0
         stop.linear.z = 0.0
+        self.get_logger().info("Car stopped")
         self.publisher_.publish(stop)
 
     def steer_car(self, frame, box_coordinates):
@@ -146,11 +161,11 @@ class ImageProcessor(Node):
         turn_right.linear.x = -0.3
         turn_right.linear.z = 0.3
 
-        if offset_x > 20:
-            self.publisher_.publish(turn_right)
-            self.get_logger().info("Turn right")
-        elif offset_x < -20:
+        if offset_x > 40:
             self.publisher_.publish(turn_left)
+            self.get_logger().info("Turn right")
+        elif offset_x < -40:
+            self.publisher_.publish(turn_right)
             self.get_logger().info("Turn left")
         else:
             self.publisher_.publish(move_forward)
